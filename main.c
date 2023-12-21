@@ -37,7 +37,6 @@ int isGraduated(void); //플레이어 중 누구라도 졸업했는지 확인
 void goForward(int player, int step); //플레이어 이동 (졸업 여부 확인 후) 
 void printPlayerStatus(void); //턴 시작 시 모든 플레이어의 상태 출력 
 float calcAverageGrade(int player); //플레이어의 평균 성적 계산 
-smmGrade_e takeLecture(int player, char *lectureName, int credit); //강의 수강, 플레이어 성적 입력 
 void* findGrade(int player, char *lectureName); //플레이어의 성적 기록 중 특정 강의 성적 찾기 
 void printGrades(int player); //플레이어의 모든 성적 기록 확인 
 
@@ -117,42 +116,26 @@ void actionNode(int player)
     
     switch(type)
        {
-        case SMMNODE_TYPE_LECTURE:  //노드 유형=강의 
-        if(cur_player[player].energy>=smmObj_getNodeEnergy( boardPtr )&& ) 
-		//현재 에너지>=소요에너지& 이전에 듣지 않은 강의인 경우 
-            {cur_player[player].accumCredit += smmObj_getNodeCredit( boardPtr ); //학점 추가 
-            cur_player[player].energy -= smmObj_getNodeEnergy( boardPtr ); //에너지 소모 
-            
-            //grade generation
-            // 랜덤 성적 선택 함수
-            double getRandomGrade() {
-            	int randomIndex = rand() % 9;
-            	  switch (randomIndex) {
-				  case 0: return Ap;
-				  case 1: return A0;
-				  case 2: return Am;
-				  case 3: return Bp;
-				  case 4: return B0;
-				  case 5: return Bm;
-				  case 6: return Cp;
-				  case 7: return C0;
-				  case 8: return Cm;
-				  default: return 0.0; // 예외 처리
-				  }
-		// 성적 평균을 계산하는 함수
-		double calculateAverageGrade(double *grades, int player_nr) {
-			double sum = 0.0;
-			for (int i = 0; i < player_nr; ++i) {
-				double selectedGrade = getRandomGrade();
-				double storedGrade = selectedGrade + LISTNO_OFFSET_GRADE;
-				grades[i] = storedGrade;
-				sum += storedGrade;
-			 }
-	    // 평균 계산
-	    double average = sum / player_nr;
-	    double *playerGrades = (double *)malloc(player_nr * sizeof(double)); // 각 플레이어의 성적을 저장할 배열
-        double average = calculateAverageGrade(playerGrades, player_nr); // 평균 성적 계산
-	    }
+       	int i;
+        case SMMNODE_TYPE_LECTURE:  //강의 유형 
+        if(cur_player[player].energy>=smmObj_getNodeEnergy( boardPtr )) 
+		//현재 에너지>=소요에너지인 경우 
+		printf("수업을 듣겠습니까?  듣는다면 아무 키를, 듣지 않는다면 1을 누르시오.");
+         scanf("%d", &answer); //대답 입력과 저장 
+         fflush(stdin);  
+            if(answer==1)
+                printf("수업을 듣지 않습니다.")
+            else
+			    {cur_player[player].accumCredit += smmObj_getNodeCredit( boardPtr ); //학점 추가 
+                cur_player[player].energy -= smmObj_getNodeEnergy( boardPtr ); //에너지 소모 
+                printf("%d 학점이 추가되고 에너지가 %d 소모되었습니다." , &smmObj_getNodeCredit( boardPtr ), &smmObj_getNodeEnergy( boardPtr )  )
+                // 랜덤 성적 선택 함수
+                gradePtr=smmObj_genObject(smmObj_getNodeName(boardPtr), smmObhType_grade, 0, smmObj_getNodeCredit(boardPtr), cur_player[player].position, rand()%9);
+                //강의 수강 기록 추가
+                smmdb_addTail(LISTNO_OFFSET_GRADE + player, gradePtr);
+                printGrades(player);
+		
+		
         break;
         
         case SMMNODE_TYPE_RESTAURANT: //노드 유형=식당 
@@ -161,11 +144,11 @@ void actionNode(int player)
             break;
             
 		case SMMNODE_TYPE_GOTOLAB: //노드 유형=실험
-		    cur_player[i].position= //LABORATORY type 칸으로 강제 이동 
+		    cur_player[i].position=9; //LABORATORY type 칸으로 강제 이동 
 		
-		case SMMNODE_TYPE_FOODCHANCE; //노드 유형=음식카드
+		case SMMNODE_TYPE_FOODCHANCE: //노드 유형=음식카드
 		
-		case SMMNODE_TYPE_FESTIVAL; //노드 유형=축제카드 
+		case SMMNODE_TYPE_FESTIVAL: //노드 유형=축제카드
 		 
         
         
@@ -254,13 +237,14 @@ int main(int argc, const char * argv[]) {
     }
     
     printf("\n\nReading food card component......\n"); //음식 카드 정보를 읽는 중...메세지 출력 
-    while () //read a food parameter set
+    while (fscanf(fp, "%s %i", name, &energy) == 2) //read a food parameter set
     {
-        //store the parameter set
+    	void *foodObj = smmObj_genObject(name, energy);
+        smmdb_addTail(LISTNO_FOODCARD, foodObj); //store the parameter set
+        food_nr++; //루프가 돌 때마다 음식 카드의 개수 세기 
     }
     fclose(fp);
     printf("Total number of food cards : %i\n", food_nr); //음식 카드의 수 출력 
-    
     
     
     //1-3. festival card config (축제 카드 정보 읽기) 
@@ -271,9 +255,10 @@ int main(int argc, const char * argv[]) {
     }
     
     printf("\n\nReading festival card component......\n"); //축제 카드 정보를 읽는 중...메세지 출력 
-    while () //read a festival card string
+    while (fscanf(fp, "%s" ) == 1) //read a festival card string
     {
-        //store the parameter set
+    	void *festivalObj = smmObj_genObject(mission);
+        smmdb_addTail(LISTNO_FOODCARD, festivalObj);     //store the parameter set
     }
     fclose(fp);
     printf("Total number of festival cards : %i\n", festival_nr); //축제 카드의 수 출력 
@@ -318,14 +303,7 @@ int main(int argc, const char * argv[]) {
     }
     
   //5. SM Marble game ending ---------------------------------------------------------------------------------
-    //성적 평균 출력
-    printf("Grades for each player:\n");
-    for (int i = 0; i < player_nr; ++i) {
-        printf("Player %d: %.1lf\n", i + 1, playerGrades[i]);
-    }
-    printf("Average grade for %d players: %.1lf\n", player_nr, average);
-    free(playerGrades);    // 동적 메모리 해제
-    return 0;
+
 }
     free(cur_player); //동적 메모리 해제 
     system("PAUSE");

@@ -5,7 +5,6 @@
 
 #ifndef smm_object_h
 #define smm_object_h
-
 #define SMMNODE_TYPE_LECTURE            0
 #define SMMNODE_TYPE_RESTAURANT         1
 #define SMMNODE_TYPE_LABORATORY         2
@@ -46,7 +45,7 @@ typedef enum smmObjType {
 
 
 //object generation
-void smmObj_genObject(char* name, smmObjType_e objType, int type, int credit, int energe);
+void smmObj_genObject(char* name, smmObjType_e objType, int type, int credit, int energy);
 
 //member retrieving
 char* smmObj_getNodeName(int node_nr);
