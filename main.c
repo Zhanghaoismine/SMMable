@@ -117,6 +117,7 @@ void actionNode(int player)
     switch(type)
        {
        	int i;
+       	int answer;
         case SMMNODE_TYPE_LECTURE:  //강의 유형 
         if(cur_player[player].energy>=smmObj_getNodeEnergy( boardPtr )) 
 		//현재 에너지>=소요에너지인 경우 
@@ -124,17 +125,16 @@ void actionNode(int player)
          scanf("%d", &answer); //대답 입력과 저장 
          fflush(stdin);  
             if(answer==1)
-                printf("수업을 듣지 않습니다.")
+                printf("수업을 듣지 않습니다.");
             else
 			    {cur_player[player].accumCredit += smmObj_getNodeCredit( boardPtr ); //학점 추가 
                 cur_player[player].energy -= smmObj_getNodeEnergy( boardPtr ); //에너지 소모 
-                printf("%d 학점이 추가되고 에너지가 %d 소모되었습니다." , &smmObj_getNodeCredit( boardPtr ), &smmObj_getNodeEnergy( boardPtr )  )
+                printf("%d 학점이 추가되고 에너지가 %d 소모되었습니다." , smmObj_getNodeCredit( boardPtr ), smmObj_getNodeEnergy( boardPtr )  )
                 // 랜덤 성적 선택 함수
                 gradePtr=smmObj_genObject(smmObj_getNodeName(boardPtr), smmObhType_grade, 0, smmObj_getNodeCredit(boardPtr), cur_player[player].position, rand()%9);
                 //강의 수강 기록 추가
                 smmdb_addTail(LISTNO_OFFSET_GRADE + player, gradePtr);
                 printGrades(player);
-		
 		
         break;
         
@@ -150,8 +150,6 @@ void actionNode(int player)
 		
 		case SMMNODE_TYPE_FESTIVAL: //노드 유형=축제카드
 		 
-        
-        
         }
         default:
             break;
@@ -263,8 +261,7 @@ int main(int argc, const char * argv[]) {
     fclose(fp);
     printf("Total number of festival cards : %i\n", festival_nr); //축제 카드의 수 출력 
     
-    
-    
+
     //2. Player configuration ---------------------------------------------------------------------------------
     
     do
@@ -285,7 +282,6 @@ int main(int argc, const char * argv[]) {
     {
         int die_result;
         
-        
         //4-1. initial printing (초기 상태 출력) 
         printPlayerStatus();
         
@@ -303,8 +299,9 @@ int main(int argc, const char * argv[]) {
     }
     
   //5. SM Marble game ending ---------------------------------------------------------------------------------
+   printf("게임이 종료되었습니다");
 
-}
+
     free(cur_player); //동적 메모리 해제 
     system("PAUSE");
     return 0;
